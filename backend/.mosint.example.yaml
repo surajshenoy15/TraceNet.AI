@@ -1,0 +1,12 @@
+# Copy this file to .mosint.yaml and add only the API keys you lawfully own.
+# MOSINT still runs some keyless checks, but provider-specific checks need keys.
+
+services:
+  breach_directory_api_key: ""
+  emailrep_api_key: ""
+  hunter_api_key: ""
+  intelx_api_key: ""
+  haveibeenpwned_api_key: ""
+
+settings:
+  intelx_max_results: 5

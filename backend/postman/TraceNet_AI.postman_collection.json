@@ -1,0 +1,672 @@
+{
+  "info": {
+    "name": "TraceNet AI API",
+    "description": "Agentic SOCMINT case-management API. Public-data-only investigative leads. Human review required.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200', () => pm.response.code === 200);",
+                  "var data = pm.response.json();",
+                  "pm.environment.set('pending_token', data.pending_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /auth/verify-mfa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200', () => pm.response.code === 200);",
+                  "var data = pm.response.json();",
+                  "pm.environment.set('access_token', data.access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/auth/verify-mfa",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pending_token\": \"{{pending_token}}\",\n  \"code\": \"{{mfa_code}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /auth/me",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/me",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cases",
+      "item": [
+        {
+          "name": "POST /cases (create)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200', () => pm.response.code === 200);",
+                  "var data = pm.response.json();",
+                  "pm.environment.set('case_id', data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": "{{base_url}}/cases",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"UPI Fraud Ring Investigation\",\n  \"jurisdiction\": \"Maharashtra Cybercrime Cell\",\n  \"priority\": \"high\",\n  \"legal_authority_ref\": \"FIR 2026/0519\",\n  \"lawful_purpose\": \"To identify, collect, and analyze publicly available information and relevant digital data to determine potential connections to activity that may involve fraud or identity misuse in support of a lawful investigation.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /cases (list)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET /cases/:id",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "POST /cases/:id/launch",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/cases/{{case_id}}/launch",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seed Inputs",
+      "item": [
+        {
+          "name": "POST /cases/:id/inputs/preview (live extraction, no persist)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": "{{base_url}}/cases/{{case_id}}/inputs/preview",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"input_type\": \"text\",\n  \"raw_value\": \"@rahul_op99 +91 98765 43210 r***@gmail.com rahul@upi github.com/rahul-op99 trading refund crypto\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /cases/:id/inputs (add seed clue)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": "{{base_url}}/cases/{{case_id}}/inputs",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"input_type\": \"text\",\n  \"raw_value\": \"@rahul_op99 +91 98765 43210 r***@gmail.com rahul@upi github.com/rahul-op99 trading refund crypto\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /cases/:id/inputs",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/inputs",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analyze",
+      "item": [
+        {
+          "name": "POST /cases/:id/analyze (run agent pipeline)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/cases/{{case_id}}/analyze",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Entities & Overview",
+      "item": [
+        {
+          "name": "GET /cases/:id/entities",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/entities",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET /cases/:id/overview",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/overview",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Behaviour & Content",
+      "item": [
+        {
+          "name": "GET /cases/:id/behaviour",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/behaviour",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET /cases/:id/content",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/content",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET /cases/:id/timeline",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/timeline",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Graph & Map",
+      "item": [
+        {
+          "name": "GET /cases/:id/graph",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/graph",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET /cases/:id/map",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/map",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Evidence",
+      "item": [
+        {
+          "name": "GET /cases/:id/evidence",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (Array.isArray(data) && data.length > 0) pm.environment.set('evidence_id', data[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/evidence",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "POST /cases/:id/evidence/upload (multipart file)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": "{{base_url}}/cases/{{case_id}}/evidence/upload",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /cases/:id/evidence/:evidence_id",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/evidence/{{evidence_id}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "PATCH /cases/:id/evidence/:evidence_id (verify/reject/exclude)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": "{{base_url}}/cases/{{case_id}}/evidence/{{evidence_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"verification_status\": \"verified\",\n  \"note\": \"Confirmed via reviewer cross-check\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Report",
+      "item": [
+        {
+          "name": "POST /cases/:id/report/generate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "pm.environment.set('report_id', data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/cases/{{case_id}}/report/generate",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET /cases/:id/report (latest)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/report",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "POST /cases/:id/report/:report_id/sign",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/cases/{{case_id}}/report/{{report_id}}/sign",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET /cases/:id/report/:report_id/export (PDF)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/report/{{report_id}}/export",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit",
+      "item": [
+        {
+          "name": "GET /cases/:id/audit",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/audit",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET /audit (global)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/audit",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "GET /dashboard/summary",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/dashboard/summary",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Identity Links",
+      "item": [
+        {
+          "name": "GET /cases/:id/image-reuse",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/image-reuse",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET /cases/:id/interactions",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/interactions",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET /cases/:id/style-pairs",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/style-pairs",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conclusion",
+      "item": [
+        {
+          "name": "GET /cases/:id/conclusion",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/cases/{{case_id}}/conclusion",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin (admin role only)",
+      "item": [
+        {
+          "name": "GET /admin/users",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/admin/users",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET /admin/stats",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/admin/stats",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Connectors",
+      "item": [
+        {
+          "name": "GET /connectors",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/connectors",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

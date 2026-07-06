@@ -1,0 +1,45 @@
+TraceNet AI — Update: Expanded Apify Actors + Modern Scanner UI + Rich PDF
+==========================================================================
+
+BACKEND
+-------
+1. New Apify scraping connectors (app/connectors/apify_scrapers.py):
+   - apify_instagram   -> apify/instagram-profile-scraper (public profile + posts)
+   - apify_tiktok      -> clockworks/tiktok-profile-scraper (public profile + videos)
+   - apify_twitter     -> apidojo/twitter-user-scraper (public profile + tweets)
+   - apify_linkedin    -> apimaestro/linkedin-profile-detail (public profile; url/username)
+   - apify_reddit      -> trudax/reddit-user-scraper (public user + posts)
+   - apify_contact_info-> apify/contact-info-scraper (public email/phone on a domain)
+   - apify_domain_whois-> epctex/whois-scraper (public WHOIS record for a domain)
+   All are public-source only. No login / OTP / contact-sync / private enumeration.
+   Registered in app/connectors/registry.py; each toggleable from .env.
+
+2. public_source_agent now derives bare domains from URLs + emails and passes a
+   "domain" bucket to the connector registry so WHOIS/contact actors fire cleanly.
+
+3. config.py + .env / .env.example: new ENABLE_* flags, actor IDs, and
+   APIFY_PROFILE_SCRAPER_MAX_ITEMS / _MAX_POSTS.
+
+PDF REPORT (app/routers/report.py + app/routers/report_visuals.py)
+------------------------------------------------------------------
+- Vector tool/platform ICONS (Instagram, GitHub, X, TikTok, Apify, WHOIS, ...)
+  rendered next to the title, in a "Tools & Platforms Scraped" icon grid, on each
+  Top-Lead row, and on each Extracted-Artifact row.
+- CHARTS: horizontal source-breakdown bar chart + Apify-actor donut chart.
+- Confidence GAUGE (semicircular) showing best confidence.
+- "Key Conclusions" block: confidence-ranked main findings with the best score.
+- New report_json fields: best_confidence, key_conclusions, graph_stats.best_confidence.
+- Direct PDF download endpoint is unchanged (GET .../report/{id}/export) so the
+  existing "Export Backend PDF" button keeps working.
+
+FRONTEND
+--------
+- index.css: modern scanner FX — sweeping cyan scan line, radar sweep + expanding
+  rings, drifting grid overlay, glow-breathe, corner brackets (.scan-frame),
+  flicker/fade-in helpers.
+- ScanProgress.jsx: radar core with animated sweep/rings, live progress bar,
+  cyan-framed scanning panel, and the new social/contact/WHOIS agent steps.
+- Report.jsx: new "Key Conclusions" section (confidence-ranked) + best-confidence
+  badge, wired to the new backend report fields. Direct PDF download preserved.
+
+Safety boundary unchanged: public-source OSINT only; human review required.
